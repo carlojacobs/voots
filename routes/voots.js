@@ -23,20 +23,20 @@ var vootSchema = new mongoose.Schema({
 var Voot = mongoose.model('voot', vootSchema)
 
 // Get all voots from db
-router.get('/', function(req, res, next) {
-    Voot.find(function(err, voots) {
-        if (err) {
-            console.log(err);
-            res.status(400).send(err)
-            res.end()
-        }
-
-        if (voots) {
-            res.status(200).json(voots)
-            res.end()
-        }
-    })
-})
+// router.get('/', function(req, res, next) {
+//     Voot.find(function(err, voots) {
+//         if (err) {
+//             console.log(err);
+//             res.status(400).send(err)
+//             res.end()
+//         }
+//
+//         if (voots) {
+//             res.status(200).json(voots)
+//             res.end()
+//         }
+//     })
+// })
 
 // Post a voot to the db
 router.post('/post', function(req, res, next) {
