@@ -53,18 +53,18 @@ userSchema.methods.comparePassword = function (passw, cb) {
 var User = mongoose.model('user', userSchema)
 
 // Route: send back all users
-// router.get('/', function(req, res, next) {
-//     User.find(function(err, users) {
-//         if (err) {
-//             console.log(err);
-//         }
-//
-//         if (users) {
-//             res.setHeader('Content-Type', 'application/json')
-//             res.status(200).json(users)
-//         }
-//     })
-// })
+router.get('/', function(req, res, next) {
+    User.find(function(err, users) {
+        if (err) {
+            console.log(err);
+        }
+
+        if (users) {
+            res.setHeader('Content-Type', 'application/json')
+            res.status(200).json(users)
+        }
+    })
+})
 
 // Register a new user with email, name and password
 router.post('/register', function(req, res, next) {
