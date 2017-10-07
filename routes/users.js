@@ -183,7 +183,7 @@ router.post('/get', function(req, res, next) {
                 })
             } else {
                 // Find a user with the corresponding email
-                User.findOne({"userId": userId}, function(err, user) {
+                User.findOne({"_id": userId}, function(err, user) {
                     if (err) {
                         // Throw error
                         console.log(err);
