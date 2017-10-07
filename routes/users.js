@@ -68,6 +68,25 @@ router.get('/', function(req, res, next) {
 
 // Register a new user with email, name and password
 router.post('/register', function(req, res, next) {
+    register(req, res, next)
+})
+
+// Login the user using email and password
+router.post('/login', function(req, res, next) {
+    login(req, res, next)
+})
+
+// Get user info with userId
+router.post('/get', function(req, res, next) {
+    get(req, res, next)
+})
+
+// Delete account
+router.post('/delete', function(req, res, next) {
+    del(req, res, next)
+})
+
+function register(req, res, next) {
     // Req parameters
     var email = req.body.email
     var password = req.body.password
@@ -81,8 +100,7 @@ router.post('/register', function(req, res, next) {
     req.checkBody('password', 'Password is too short, it must be 8 characters or longer!').isLength({ min: 8 })
 
     // Check validation result
-    req.getValidationResult()
-        .then(function(result) {
+    req.getValidationResult().then(function(result) {
             if (result.isEmpty() == false) {
                 // Throw validationresult error
                 result.array().forEach((error) => {
@@ -97,16 +115,17 @@ router.post('/register', function(req, res, next) {
                     password: password
                 })
 
-                //Save user into db
-                newUser.save()
-                res.status(200).send('Registered successfully')
-                res.end()
+                //Save user into db then login the user
+                newUser.save().then(login(req, res, next))
+
+
+                // res.status(200).send('Registered successfully')
+                // res.end()
             }
         })
-})
+}
 
-// Login the user using email and password
-router.post('/login', function(req, res, next) {
+function login(req, res, next) {
     // Req parameters
     var email = req.body.email
     var password = req.body.password
@@ -116,56 +135,55 @@ router.post('/login', function(req, res, next) {
     req.checkBody('password', 'Password is required').notEmpty()
 
     // Check validation result
-    req.getValidationResult()
-        .then(function(result) {
-            if (result.isEmpty() == false) {
-                // Throw validationresult error
-                result.array().forEach((error) => {
-                    res.status(400).send(error.msg)
+    req.getValidationResult().then(function(result) {
+        if (result.isEmpty() == false) {
+            // Throw validationresult error
+            result.array().forEach((error) => {
+                res.status(400).send(error.msg)
+                res.end()
+            })
+        } else {
+            // Find a user with the corresponding email
+            User.findOne({"email": email}, function(err, user) {
+                if (err) {
+                    // Throw error
+                    console.log(err);
                     res.end()
-                })
-            } else {
-                // Find a user with the corresponding email
-                User.findOne({"email": email}, function(err, user) {
-                    if (err) {
-                        // Throw error
-                        console.log(err);
-                        res.end()
+                } else {
+                    if (user) {
+                        // Compare the encrypted pw to the input pw
+                        user.comparePassword(password, function(err, isMatch) {
+                            if (err) {
+                                // Throw error
+                                console.log(err);
+                                res.status(400).send(err)
+                                res.end()
+                            }
+
+                            if (isMatch) {
+                                // Send back userId
+                                console.log('Logged in');
+                                res.status(200).send(user.id)
+                                return user.id
+                                res.end()
+                            } else {
+                                console.log('Wrong password');
+                                res.status(400).send('Wrong password')
+                                res.end()
+                            }
+                        })
                     } else {
-                        if (user) {
-                            // Compare the encrypted pw to the input pw
-                            user.comparePassword(password, function(err, isMatch) {
-                                if (err) {
-                                    // Throw error
-                                    console.log(err);
-                                    res.status(400).send(err)
-                                    res.end()
-                                }
-
-                                if (isMatch) {
-                                    // Send back userId
-                                    console.log('Logged in');
-                                    res.status(200).send(user.id)
-                                    res.end()
-                                } else {
-                                    console.log('Wrong password');
-                                    res.status(400).send('Wrong password')
-                                    res.end()
-                                }
-                            })
-                        } else {
-                            console.log('Email not valid');
-                            res.status(400).send("Email not valid")
-                            res.end()
-                        }
+                        console.log('Email not valid');
+                        res.status(400).send("Email not valid")
+                        res.end()
                     }
-                })
-            }
-        })
-})
+                }
+            })
+        }
+    })
+}
 
-// Get user info with userId
-router.post('/get', function(req, res, next) {
+function get(req, res, next) {
     // Req parameters
     var userId = req.body.userId
 
@@ -173,37 +191,35 @@ router.post('/get', function(req, res, next) {
     req.checkBody('userId', 'User ID is required').notEmpty()
 
     // Check validation result
-    req.getValidationResult()
-        .then(function(result) {
-            if (result.isEmpty() == false) {
-                // Throw validationresult error
-                result.array().forEach((error) => {
-                    res.status(400).send(error.msg)
+    req.getValidationResult().then(function(result) {
+        if (result.isEmpty() == false) {
+            // Throw validationresult error
+            result.array().forEach((error) => {
+                res.status(400).send(error.msg)
+                res.end()
+            })
+        } else {
+            // Find a user with the corresponding email
+            User.findOne({"_id": userId}, function(err, user) {
+                if (err) {
+                    // Throw error
+                    console.log(err);
                     res.end()
-                })
-            } else {
-                // Find a user with the corresponding email
-                User.findOne({"_id": userId}, function(err, user) {
-                    if (err) {
-                        // Throw error
-                        console.log(err);
-                        res.end()
+                } else {
+                    if (user) {
+                        res.status(200).json(user)
                     } else {
-                        if (user) {
-                            res.status(200).json(user)
-                        } else {
-                            console.log('No user found');
-                            res.status(400).send("No user found")
-                            res.end()
-                        }
+                        console.log('No user found');
+                        res.status(400).send("No user found")
+                        res.end()
                     }
-                })
-            }
-        })
-})
+                }
+            })
+        }
+    })
+}
 
-// Delete account
-router.post('/delete', function(req, res, next) {
+function del(req, res, next) {
     // Req parameters
     var id = req.body.id
 
@@ -211,21 +227,21 @@ router.post('/delete', function(req, res, next) {
     req.checkBody('id', 'Id is required').notEmpty()
 
     // Check validation result
-    req.getValidationResult()
-        .then(function(result) {
-            if (result.isEmpty() == false) {
-                // Throw validationresult error
-                result.array().forEach((error) => {
-                    res.status(400).send(error.msg)
-                })
-            } else {
-                // Delete user with corresponding id
-                User.findByIdAndRemove(id).exec()
-                console.log('User removed');
-                res.status(200).send('User removed')
-                res.end()
-            }
-        })
-})
+    req.getValidationResult().then(function(result) {
+        if (result.isEmpty() == false) {
+            // Throw validationresult error
+            result.array().forEach((error) => {
+                res.status(400).send(error.msg)
+            })
+        } else {
+            // Delete user with corresponding id
+            User.findByIdAndRemove(id).exec()
+            console.log('User removed');
+            res.status(200).send('User removed')
+            res.end()
+        }
+    })
+}
 
+// Don't forget this in the future!
 module.exports = router;
