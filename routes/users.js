@@ -164,6 +164,44 @@ router.post('/login', function(req, res, next) {
         })
 })
 
+// Get user info with userId
+router.post('/get', function(req, res, next) {
+    // Req parameters
+    var userId = req.body.userId
+
+    //Validation
+    req.checkBody('userId', 'User ID is required').notEmpty()
+
+    // Check validation result
+    req.getValidationResult()
+        .then(function(result) {
+            if (result.isEmpty() == false) {
+                // Throw validationresult error
+                result.array().forEach((error) => {
+                    res.status(400).send(error.msg)
+                    res.end()
+                })
+            } else {
+                // Find a user with the corresponding email
+                User.findOne({"userId": userId}, function(err, user) {
+                    if (err) {
+                        // Throw error
+                        console.log(err);
+                        res.end()
+                    } else {
+                        if (user) {
+                            res.status(200).json(user)
+                        } else {
+                            console.log('No user found');
+                            res.status(400).send("No user found")
+                            res.end()
+                        }
+                    }
+                })
+            }
+        })
+})
+
 // Delete account
 router.post('/delete', function(req, res, next) {
     // Req parameters
