@@ -188,6 +188,11 @@ function login(req, res, next) {
     })
 }
 
+
+/*
+TODO: Fix the "user._id": userId problem!!!
+*/
+
 function get(req, res, next) {
     // Req parameters
     var userId = req.body.userId
@@ -249,6 +254,5 @@ function del(req, res, next) {
 }
 
 // Don't forget this in the future!
-// module.exports = router;
 module.exports.router = router;
 module.exports.model = User;

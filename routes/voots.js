@@ -19,7 +19,7 @@ var vootSchema = new mongoose.Schema({
     title: String,
     body: String,
     user: {
-        type: mongoose.Schema.Types,
+        type: mongoose.Schema.Types.ObjectId,
         ref: 'user'
     },
     upVotes: [String],
@@ -68,7 +68,6 @@ router.post('/post', function(req, res, next) {
                 res.end()
             })
         } else {
-            console.log(User);
             User.findOne({"_id": userId}, function(err, user) {
                 if (err) {
                     // Throw error
@@ -90,6 +89,8 @@ router.post('/post', function(req, res, next) {
                         res.end()
                     } else {
                         console.log("No user found");
+                        res.status(400).send('No user found')
+                        res.end()
                     }
                 }
             })
@@ -161,17 +162,8 @@ router.post('/get', function(req, res, next) {
             })
         } else {
             // Send all voots from the specific user
-            Voot.find({"userId": userId}, function(err, voots) {
-                if (err) {
-                    console.log(err);
-                    res.status(400).send(err)
-                    res.end()
-                }
-
-                if (voots) {
-                    res.status(200).send(voots)
-                    res.end()
-                }
+            Voot.find({"user": userId}).populate('user').exec(function(err, voots) {
+                res.status(200).send(voots)
             })
         }
     })
