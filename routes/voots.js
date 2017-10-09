@@ -62,7 +62,7 @@ router.post('/delete', function(req, res, next) {
 })
 
 router.post('/vote', function(req, res, next) {
-    
+    vote(req, res, next)
 })
 
 router.post('/didVote', function(req, res, next) {
