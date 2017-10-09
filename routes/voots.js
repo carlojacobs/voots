@@ -31,15 +31,17 @@ var Voot = mongoose.model('voot', vootSchema)
 
 // Get all voots from db
 router.get('/', function(req, res, next) {
-    Voot.find(function(err, voots) {
+    // Send all voots from the specific user
+    Voot.find().populate('user').exec(function(err, voots) {
         if (err) {
-            console.log(err);
             res.status(400).send(err)
-            res.end()
         }
 
         if (voots) {
             res.status(200).send(voots)
+            res.end()
+        } else {
+            res.status(400).send('No voots found')
             res.end()
         }
     })
