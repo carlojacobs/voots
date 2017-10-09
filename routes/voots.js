@@ -5,8 +5,8 @@ var mongoose = require('mongoose')
 var expressValidator = require('express-validator')
 var bcrypt = require('bcrypt')
 
-var users = require('./users');
-var User = users.model
+// User model
+var User = mongoose.model('user')
 
 router.use(expressValidator())
 
@@ -18,7 +18,10 @@ mongoose.connect('mongodb://carlo:Dittoenbram1234@carlo-shard-00-00-nwaxe.mongod
 var vootSchema = new mongoose.Schema({
     title: String,
     body: String,
-    userId: String,
+    user: {
+        type: mongoose.Schema.Types,
+        ref: 'user'
+    },
     upVotes: [String],
     downVotes: [String]
 })
@@ -36,7 +39,7 @@ router.get('/', function(req, res, next) {
         }
 
         if (voots) {
-            res.status(200).json(voots)
+            res.status(200).send(voots)
             res.end()
         }
     })
@@ -65,19 +68,31 @@ router.post('/post', function(req, res, next) {
                 res.end()
             })
         } else {
-            //Create new Voot()
-            var newVoot = Voot({
-                title: title,
-                body: body,
-                userId: userId,
-                upVotes: upVotes,
-                downVotes: downVotes
-            })
+            console.log(User);
+            User.findOne({"_id": userId}, function(err, user) {
+                if (err) {
+                    // Throw error
+                    console.log(err);
+                } else {
+                    if (user) {
+                        //Create new Voot()
+                        var newVoot = Voot({
+                            title: title,
+                            body: body,
+                            user: user,
+                            upVotes: upVotes,
+                            downVotes: downVotes
+                        })
 
-            //Save voot to db
-            newVoot.save()
-            res.status(200).send('Posted voot successfully')
-            res.end()
+                        //Save voot to db
+                        newVoot.save()
+                        res.status(200).send('Posted voot successfully')
+                        res.end()
+                    } else {
+                        console.log("No user found");
+                    }
+                }
+            })
         }
     })
 })

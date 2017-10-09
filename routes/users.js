@@ -5,8 +5,9 @@ var mongoose = require('mongoose')
 var expressValidator = require('express-validator')
 var bcrypt = require('bcrypt')
 
-var voots = require('./voots')
-var Voot = voots.model
+// var voots = require('./voots')
+// var Voot = voots.model
+// var Voot = mongoose.model('voot')
 
 router.use(expressValidator())
 
