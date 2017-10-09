@@ -45,8 +45,32 @@ router.get('/', function(req, res, next) {
     })
 })
 
-// Post a voot to the db
 router.post('/post', function(req, res, next) {
+    post(req, res, next)
+})
+
+router.post('/update', function(req, res, next) {
+    update(req, res, next)
+})
+
+router.post('/get', function(req, res, next) {
+    get(req, res, next)
+})
+
+router.post('/delete', function(req, res, next) {
+    del(req, res, next)
+})
+
+router.post('/vote', function(req, res, next) {
+    
+})
+
+router.post('/didVote', function(req, res, next) {
+    didVote(req, res, next)
+})
+
+// Post a voot to the db
+function post(req, res, next) {
     // Req parameters
     var title = req.body.title
     var body = req.body.body
@@ -96,10 +120,10 @@ router.post('/post', function(req, res, next) {
             })
         }
     })
-})
+}
 
 // Update voot
-router.post('/update', function(req, res, next) {
+function update(req, res, next) {
     // Req parameters
     var id = req.body.id
     var title = req.body.title
@@ -142,10 +166,10 @@ router.post('/update', function(req, res, next) {
             })
         }
     })
-})
+}
 
 // Get voots from specific user
-router.post('/get', function(req, res, next) {
+function get(req, res, next) {
     // Req parameters
     var userId = req.body.userId
 
@@ -177,10 +201,10 @@ router.post('/get', function(req, res, next) {
             })
         }
     })
-})
+}
 
 // Delete voot with specific id
-router.post('/delete', function(req, res, next) {
+function del(req, res, next) {
     // Req parameters
     var id = req.body.id
 
@@ -203,10 +227,10 @@ router.post('/delete', function(req, res, next) {
             res.end()
         }
     })
-})
+}
 
 // Vote on a voot
-router.post('/vote', function(req, res, next) {
+function vote(req, res, next) {
     // Req parameters
     var id = req.body.id
     var parameter = req.body.parameter
@@ -304,10 +328,10 @@ router.post('/vote', function(req, res, next) {
             })
         }
     })
-})
+}
 
 // Check if the user has voted on a specific voot
-router.post('/didVote', function(req, res, next) {
+function didVote(req, res, next) {
     // Req parameters
     var userId = req.body.userId
     var id = req.body.id
@@ -356,7 +380,7 @@ router.post('/didVote', function(req, res, next) {
             })
         }
     })
-})
+}
 
 // module.exports = router;
 module.exports.router = router;
