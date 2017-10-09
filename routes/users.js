@@ -4,6 +4,10 @@ var router = express.Router();
 var mongoose = require('mongoose')
 var expressValidator = require('express-validator')
 var bcrypt = require('bcrypt')
+
+var voots = require('./voots')
+var Voot = voots.model
+
 router.use(expressValidator())
 
 // Connect to mongodb using mongoose
@@ -244,4 +248,6 @@ function del(req, res, next) {
 }
 
 // Don't forget this in the future!
-module.exports = router;
+// module.exports = router;
+module.exports.router = router;
+module.exports.model = User;

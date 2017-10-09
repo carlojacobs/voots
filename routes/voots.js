@@ -4,6 +4,10 @@ var router = express.Router();
 var mongoose = require('mongoose')
 var expressValidator = require('express-validator')
 var bcrypt = require('bcrypt')
+
+var users = require('./users');
+var User = users.model
+
 router.use(expressValidator())
 
 // Connect to mongodb using mongoose
@@ -337,4 +341,6 @@ router.post('/didVote', function(req, res, next) {
     })
 })
 
-module.exports = router;
+// module.exports = router;
+module.exports.router = router;
+module.exports.model = Voot;
