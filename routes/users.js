@@ -116,11 +116,11 @@ function register(req, res, next) {
                 })
 
                 //Save user into db then login the user
-                newUser.save().then(login(req, res, next))
+                // newUser.save().then(login(req, res, next))
+                newUser.save()
 
-
-                // res.status(200).send('Registered successfully')
-                // res.end()
+                res.status(200).send('Registered successfully')
+                res.end()
             }
         })
 }
