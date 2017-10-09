@@ -163,7 +163,17 @@ router.post('/get', function(req, res, next) {
         } else {
             // Send all voots from the specific user
             Voot.find({"user": userId}).populate('user').exec(function(err, voots) {
-                res.status(200).send(voots)
+                if (err) {
+                    res.status(400).send(err)
+                }
+
+                if (voots) {
+                    res.status(200).send(voots)
+                    res.end()
+                } else {
+                    res.status(400).send('No voots found')
+                    res.end()
+                }
             })
         }
     })
