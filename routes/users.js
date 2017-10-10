@@ -169,7 +169,6 @@ function login(req, res, next) {
                                 // Send back userId
                                 console.log('Logged in');
                                 res.status(200).send(user.id)
-                                return user.id
                                 res.end()
                             } else {
                                 console.log('Wrong password');
@@ -218,6 +217,7 @@ function get(req, res, next) {
                 } else {
                     if (user) {
                         res.status(200).json(user)
+                        res.end()
                     } else {
                         console.log('No user found');
                         res.status(400).send("No user found")

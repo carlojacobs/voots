@@ -38,6 +38,10 @@ router.get('/', function(req, res, next) {
         }
 
         if (voots) {
+            for voot in voots {
+                voot.user.password = "."
+            }
+
             res.status(200).send(voots)
             res.end()
         } else {
