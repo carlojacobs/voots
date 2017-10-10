@@ -5,14 +5,9 @@ var mongoose = require('mongoose')
 var expressValidator = require('express-validator')
 var bcrypt = require('bcrypt')
 
-// var voots = require('./voots')
-// var Voot = voots.model
-// var Voot = mongoose.model('voot')
-
 router.use(expressValidator())
 
 // Connect to mongodb using mongoose
-// mongoose.connect('localhost:27017/voots')
 mongoose.connect('mongodb://carlo:Dittoenbram1234@carlo-shard-00-00-nwaxe.mongodb.net:27017,carlo-shard-00-01-nwaxe.mongodb.net:27017,carlo-shard-00-02-nwaxe.mongodb.net:27017/test?ssl=true&replicaSet=carlo-shard-0&authSource=admin')
 
 // Create mongoose userShema
@@ -254,5 +249,4 @@ function del(req, res, next) {
 }
 
 // Don't forget this in the future!
-module.exports.router = router;
-module.exports.model = User;
+module.exports = router;

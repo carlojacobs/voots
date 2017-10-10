@@ -18,6 +18,8 @@ mongoose.connect('mongodb://carlo:Dittoenbram1234@carlo-shard-00-00-nwaxe.mongod
 var vootSchema = new mongoose.Schema({
     title: String,
     body: String,
+    private: Boolean,
+    key: String,
     user: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'user'
@@ -28,6 +30,17 @@ var vootSchema = new mongoose.Schema({
 
 // Create Voot model
 var Voot = mongoose.model('voot', vootSchema)
+
+// Function to generate random key for private voots
+function generateRandomKey() {
+  var text = "";
+  var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
+  for (var i = 0; i < 6; i++)
+    text += possible.charAt(Math.floor(Math.random() * possible.length));
+
+  return text;
+}
 
 // Get all voots from db
 router.get('/', function(req, res, next) {
@@ -81,13 +94,16 @@ function post(req, res, next) {
     var title = req.body.title
     var body = req.body.body
     var userId = req.body.userId
-    var upVotes = req.body.upVotes
-    var downVotes = req.body.downVotes
+    // var upVotes = req.body.upVotes
+    // var downVotes = req.body.downVotes
+    var private = req.body.private
+
 
     // Validation
     req.checkBody('title', 'title is required').notEmpty()
     req.checkBody('body', 'Body is required').notEmpty()
     req.checkBody('userId', 'User id is required').notEmpty()
+    req.checkBody('private', 'Private parameter is required')
 
     // Get validation result
     req.getValidationResult().then(function(result) {
@@ -104,19 +120,40 @@ function post(req, res, next) {
                     console.log(err);
                 } else {
                     if (user) {
-                        //Create new Voot()
-                        var newVoot = Voot({
-                            title: title,
-                            body: body,
-                            user: user,
-                            upVotes: upVotes,
-                            downVotes: downVotes
-                        })
+                        
+                        if (private == "false") {
+                            //Create new Voot()
+                            var newVoot = Voot({
+                                title: title,
+                                body: body,
+                                private: false,
+                                key: "",
+                                user: user
+                            })
 
-                        //Save voot to db
-                        newVoot.save()
-                        res.status(200).send('Posted voot successfully')
-                        res.end()
+                            //Save voot to db
+                            newVoot.save()
+                            res.status(200).send('Posted voot successfully')
+                            res.end()
+                        } else {
+                            // Generate random key
+                            var randomKey = generateRandomKey()
+
+                            // Create new private voot
+                            var newVoot = Voot({
+                                title: title,
+                                body: body,
+                                private: true,
+                                key: randomKey,
+                                user: user
+                            })
+
+                            //Save voot to db
+                            newVoot.save()
+                            res.status(200).send('Posted private voot successfully')
+                            res.end()
+                        }
+
                     } else {
                         console.log("No user found");
                         res.status(400).send('No user found')
@@ -389,5 +426,4 @@ function didVote(req, res, next) {
 }
 
 // module.exports = router;
-module.exports.router = router;
-module.exports.model = Voot;
+module.exports = router;
