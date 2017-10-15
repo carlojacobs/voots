@@ -5,11 +5,11 @@ var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
+var expressJwt = require('express-jwt')
 
 var index = require('./routes/index');
-
 var users = require('./routes/users');
-var voots = require('./routes/voots')
+var voots = require('./routes/voots');
 
 var app = express();
 
@@ -25,6 +25,10 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+// Express jwt middleware
+app.use(expressJwt({ secret: 'myawesomejwtsecret' }).unless({ path: ['/users/login', '/users/register', '/'] }));
+
+// Routes
 app.use('/', index);
 app.use('/users', users);
 app.use('/voots', voots)
