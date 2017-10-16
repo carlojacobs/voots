@@ -130,9 +130,11 @@ function post(req, res, next) {
                             })
 
                             //Save voot to db
-                            newVoot.save();
-                            res.status(200).send('Posted voot successfully');
-                            res.end();
+                            newVoot.save().then(function() {
+                                res.status(200).send('Posted voot successfully');
+                                res.end();
+                            });
+
                         } else {
                             // Generate random key
                             var randomKey = generateRandomKey();
@@ -147,9 +149,11 @@ function post(req, res, next) {
                             });
 
                             //Save voot to db
-                            newVoot.save();
-                            res.status(200).send('Posted private voot successfully');
-                            res.end();
+                            //Save voot to db
+                            newVoot.save().then(function() {
+                                res.status(200).send('Posted private voot successfully');
+                                res.end();
+                            });
                         }
 
                     } else {

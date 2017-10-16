@@ -115,8 +115,7 @@ function register(req, res, next) {
                     password: password
                 });
 
-                //Save user into db then login the user
-                // newUser.save().then(login(req, res, next))
+                //Save user into db and send back the token
                 newUser.save().then(function() {
                     var token = signToken(newUser.id);
                     res.status(200).json({ token })
@@ -163,7 +162,8 @@ function login(req, res, next) {
                             if (isMatch) {
                                 // Send back userId
                                 console.log('Logged in');
-                                res.status(200).send(user.id)
+                                var token = signToken(user.id)
+                                res.status(200).json({ token })
                                 res.end();
                             } else {
                                 console.log('Wrong password');
@@ -174,18 +174,13 @@ function login(req, res, next) {
                     } else {
                         console.log('Email not valid');
                         res.status(400).send("Email not valid");
-                        res.en;d();
+                        res.end();
                     }
                 }
             });
         }
     });
 }
-
-
-/*
-TODO: Fix the "user._id": userId problem!!!
-*/
 
 function get(req, res, next) {
     // Req parameters
