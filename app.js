@@ -26,7 +26,7 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Express jwt middleware
-app.use(expressJwt({ secret: 'myawesomejwtsecret' }).unless({ path: ['/users/login', '/users/register', '/'] }));
+// app.use(expressJwt({ secret: 'myawesomejwtsecret' }).unless({ path: ['/users/login', '/users/register', '/', '/users'] }));
 
 // Routes
 app.use('/', index);

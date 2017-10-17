@@ -25,7 +25,8 @@ var vootSchema = new mongoose.Schema({
         ref: 'user'
     },
     upVotes: [String],
-    downVotes: [String]
+    downVotes: [String],
+    didVote: String
 })
 
 // Create Voot model
@@ -43,36 +44,19 @@ function generateRandomKey() {
 }
 
 // Get all voots from db
-router.get('/', function(req, res, next) {
-    // Send all voots from the specific user
-    Voot.find().populate('user').exec(function(err, voots) {
-        if (err) {
-            res.status(400).send(err);
-        }
-
-        if (voots) {
-            for (var i = voots.length - 1; i >= 0; i--) {
-                voots[i].user.password = "."
-            }
-
-            res.status(200).send(voots);
-            res.end();
-        } else {
-            res.status(400).send('No voots found');
-            res.end();
-        }
-    });
-});
-
 router.post('/post', function(req, res, next) {
     post(req, res, next);
 });
+
+router.get('/all/:userId', function(req, res, next) {
+    getVoots(req, res, next)
+})
 
 router.post('/update', function(req, res, next) {
     update(req, res, next);
 });
 
-router.post('/get', function(req, res, next) {
+router.get('/get/:userId', function(req, res, next) {
     get(req, res, next);
 });
 
@@ -84,9 +68,38 @@ router.post('/vote', function(req, res, next) {
     vote(req, res, next);
 });
 
-router.post('/didVote', function(req, res, next) {
-    didVote(req, res, next);
-});
+function get(req, res, next) {
+    // Req parameters
+    var userId = req.params.userId
+
+    // Send all voots from the specific user
+    Voot.find({"user": userId}).populate('user').exec(function(err, voots) {
+        // if (err) {
+        //     res.status(400).send(err);
+        //     res.end();
+        // }
+
+        if (voots) {
+            for (var i = voots.length - 1; i >= 0; i--) {
+                var voot = voots[i]
+                voot.user.password = "."
+                voot.key = "."
+
+                var voted = checkIfVoted(voot, userId)
+
+                voot.didVote = voted
+
+            }
+
+            res.status(200).send(voots);
+            res.end();
+
+        } else {
+            res.status(400).send('No voots found');
+            res.end();
+        }
+    });
+}
 
 // Post a voot to the db
 function post(req, res, next) {
@@ -101,7 +114,7 @@ function post(req, res, next) {
     req.checkBody('title', 'title is required').notEmpty();
     req.checkBody('body', 'Body is required').notEmpty();
     req.checkBody('userId', 'User id is required').notEmpty();
-    req.checkBody('private', 'Private parameter is required');
+    req.checkBody('private', 'Private parameter is required').notEmpty;
 
     // Get validation result
     req.getValidationResult().then(function(result) {
@@ -213,42 +226,41 @@ function update(req, res, next) {
     });
 }
 
-// Get voots from specific user
-function get(req, res, next) {
+// Get all voots
+function getVoots(req, res, next) {
     // Req parameters
-    var userId = req.body.userId;
+    var userId = req.params.userId;
 
-    // Validation
-    req.checkBody('userId', 'User id is required').notEmpty();
+    // Send all voots
+    Voot.find().populate('user').exec(function(err, voots) {
+        // if (err) {
+        //     res.status(400).send(err);
+        // }
 
-    // Get validtion result
-    req.getValidationResult().then(function(result) {
-        // Return errors
-        if (result.isEmpty() == false) {
-            result.array().forEach((error) => {
-                res.status(400).send(error.msg);
-                res.end();
-            });
+        if (voots) {
+            for (var i = voots.length - 1; i >= 0; i--) {
+                var voot = voots[i]
+                voot.user.password = "."
+                voot.key = "."
+
+                var voted = checkIfVoted(voot, userId)
+
+                voot.didVote = voted
+
+            }
+
+            res.status(200).json(voots);
+            res.end();
         } else {
-            // Send all voots from the specific user
-            Voot.find({"user": userId}).populate('user').exec(function(err, voots) {
-                if (err) {
-                    res.status(400).send(err);
-                }
-
-                if (voots) {
-                    res.status(200).send(voots);
-                    res.end();
-                } else {
-                    res.status(400).send('No voots found');
-                    res.end();
-                }
-            });
+            res.status(400).send('No voots found');
+            res.end();
         }
     });
+
 }
 
 // Delete voot with specific id
+//TODO: Require password for deletion of account
 function del(req, res, next) {
     // Req parameters
     var id = req.body.id;
@@ -376,55 +388,22 @@ function vote(req, res, next) {
 }
 
 // Check if the user has voted on a specific voot
-function didVote(req, res, next) {
-    // Req parameters
-    var userId = req.body.userId;
-    var id = req.body.id;
+function checkIfVoted(voot, userId) {
 
-    // Validation
-    req.checkBody('userId', 'userId is required').notEmpty;
-    req.checkBody('id', 'id is required');
-
-    // Get validation result
-    req.getValidationResult().then(function(result) {
-        // Return errors
-        if (result.isEmpty() == false) {
-            result.array().forEach((error) => {
-                res.status(400).send(error.msg);
-                res.end();
-            });
-        } else {
-            // Find voot with corresponding id
-            Voot.findById(id, function(err, voot) {
-                if (err) {
-                    res.status(400).send('No voot found');
-                    res.end();
-                }
-
-                if (voot) {
-                    // Check if voted up by user
-                    for (var i = 0; i < voot.upVotes.length; i++) {
-                        if (voot.upVotes[i] == userId) {
-                            res.status(200).send('up');
-                            res.end();
-                            return;
-                        }
-                    }
-                    // Check if voted down by user
-                    for (var i = 0; i < voot.downVotes.length; i++) {
-                        if (voot.downVotes[i] == userId) {
-                            res.status(200).send('down');
-                            res.end();
-                            return;
-                        }
-                    }
-                    // Otherwise send back none
-                    res.status(200).send('none');
-                    res.end();
-                }
-            });
+    // Check if voted up by user
+    for (var i = 0; i < voot.upVotes.length; i++) {
+        if (voot.upVotes[i] == userId) {
+            return "up";
         }
-    });
+    }
+    // Check if voted down by user
+    for (var i = 0; i < voot.downVotes.length; i++) {
+        if (voot.downVotes[i] == userId) {
+            return "down";
+        }
+    }
+    // Otherwise send back none
+    return "none";
 }
 
 // module.exports = router;

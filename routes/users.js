@@ -54,7 +54,8 @@ userSchema.methods.comparePassword = function (passw, cb) {
 var User = mongoose.model('user', userSchema);
 
 // Route: send back all users
-router.get('/', function(req, res, next) {
+// For testing purposes
+router.get('/all', function(req, res, next) {
     User.find(function(err, users) {
         if (err) {
             console.log(err);
@@ -78,7 +79,7 @@ router.post('/login', function(req, res, next) {
 });
 
 // Get user info with userId
-router.post('/get', function(req, res, next) {
+router.get('/:userId', function(req, res, next) {
     get(req, res, next);
 });
 
@@ -118,7 +119,7 @@ function register(req, res, next) {
                 //Save user into db and send back the token
                 newUser.save().then(function() {
                     var token = signToken(newUser.id);
-                    res.status(200).json({ token })
+                    res.status(200).json({ token: token, userId: newUser.id })
                 });
             }
         });
@@ -163,7 +164,7 @@ function login(req, res, next) {
                                 // Send back userId
                                 console.log('Logged in');
                                 var token = signToken(user.id)
-                                res.status(200).json({ token })
+                                res.status(200).json({ token: token, userId: user.id })
                                 res.end();
                             } else {
                                 console.log('Wrong password');
@@ -184,41 +185,28 @@ function login(req, res, next) {
 
 function get(req, res, next) {
     // Req parameters
-    var userId = req.body.userId;
+    var userId = req.params.userId;
 
-    //Validation
-    req.checkBody('userId', 'User ID is required').notEmpty();
-
-    // Check validation result
-    req.getValidationResult().then(function(result) {
-        if (result.isEmpty() == false) {
-            // Throw validationresult error
-            result.array().forEach((error) => {
-                res.status(400).send(error.msg);
-                res.end();
-            });
+    // Find a user with the corresponding email
+    User.findOne({"_id": userId}, function(err, user) {
+        if (err) {
+            // Throw error
+            console.log(err);
+            res.end();
         } else {
-            // Find a user with the corresponding email
-            User.findOne({"_id": userId}, function(err, user) {
-                if (err) {
-                    // Throw error
-                    console.log(err);
-                    res.end();
-                } else {
-                    if (user) {
-                        res.status(200).json(user);
-                        res.end();
-                    } else {
-                        console.log('No user found');
-                        res.status(400).send("No user found");
-                        res.end();
-                    }
-                }
-            });
+            if (user) {
+                res.status(200).json(user);
+                res.end();
+            } else {
+                console.log('No user found');
+                res.status(400).send("No user found");
+                res.end();
+            }
         }
     });
 }
 
+//TODO: Require password for deletion of account
 function del(req, res, next) {
     // Req parameters
     var id = req.body.id;
