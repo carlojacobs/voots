@@ -8,6 +8,7 @@ var bcrypt = require('bcrypt');
 // User model
 var User = mongoose.model('user');
 
+// Express validator middleware
 router.use(expressValidator());
 
 // Connect to mongodb using mongoose
@@ -43,7 +44,6 @@ function generateRandomKey() {
   return text;
 }
 
-// Get all voots from db
 router.post('/post', function(req, res, next) {
     post(req, res, next);
 });
@@ -52,19 +52,19 @@ router.get('/all/:userId', function(req, res, next) {
     getVoots(req, res, next)
 })
 
-router.post('/update', function(req, res, next) {
-    update(req, res, next);
-});
-
 router.get('/get/:userId', function(req, res, next) {
     get(req, res, next);
 });
 
-router.post('/delete', function(req, res, next) {
+router.put('/update', function(req, res, next) {
+    update(req, res, next);
+});
+
+router.delete('/delete', function(req, res, next) {
     del(req, res, next);
 });
 
-router.post('/vote', function(req, res, next) {
+router.put('/vote', function(req, res, next) {
     vote(req, res, next);
 });
 
@@ -131,7 +131,7 @@ function post(req, res, next) {
                     console.log(err);
                 } else {
                     if (user) {
-                        
+
                         if (private == "false") {
                             //Create new Voot()
                             var newVoot = Voot({
@@ -260,7 +260,7 @@ function getVoots(req, res, next) {
 }
 
 // Delete voot with specific id
-//TODO: Require password for deletion of account
+//TODO: Require password for deletion of voot/user
 function del(req, res, next) {
     // Req parameters
     var id = req.body.id;
@@ -278,10 +278,15 @@ function del(req, res, next) {
             });
         } else {
             // Delete voot with the id
-            Voot.findByIdAndRemove(id).exec()
-            console.log('Voot removed');
-            res.status(200).send('Voot removed');
-            res.end();
+            Voot.findOneAndRemove({_id: id}, function(err, voot, result) {
+                if (err) {
+                    res.status(400).send(err);
+                    res.end();
+                }
+                console.log('Voot removed');
+                res.status(200).send('Voot removed');
+                res.end();
+            });
         }
     });
 }
@@ -318,25 +323,31 @@ function vote(req, res, next) {
 
                     if (parameter == "up") {
                         // Check if the user has previously voted down, if so, remove that vote and add the upvote
-                        for (var i = 0; i < voot.downVotes.length; i++) {
-                            if (voot.downVotes[i] == userId) {
-                                voot.downVotes.splice(i, 1);
-                                voot.upVotes.push(userId);
-                                voot.save();
-                                res.status(200).send('Voted up');
-                                res.end();
-                                return;
-                            }
-                        }
 
-                        // Check if the user has already voted up
-                        for (var i = 0; i < voot.upVotes.length; i++) {
-                            if (voot.upVotes[i] == userId) {
-                                voot.upVotes.splice(i, 1);
-                                voot.save();
-                                res.status(200).send("Removed upvote");
-                                res.end();
-                                return;
+                        var voted = checkIfVoted(voot, userId);
+
+                        if (voted == "down") {
+                            // If the the user has already voted down, remove that downvote
+                            for (var i = 0; i < voot.downVotes.length; i++) {
+                                if (voot.downVotes[i] == userId) {
+                                    voot.downVotes.splice(i, 1);
+                                    voot.upVotes.push(userId);
+                                    voot.save();
+                                    res.status(200).send('Voted up');
+                                    res.end();
+                                    return;
+                                }
+                            }
+                        } else if (voted == "up") {
+                            // Check if the user has already voted up, remove that upvote
+                            for (var i = 0; i < voot.upVotes.length; i++) {
+                                if (voot.upVotes[i] == userId) {
+                                    voot.upVotes.splice(i, 1);
+                                    voot.save();
+                                    res.status(200).send("Removed upvote");
+                                    res.end();
+                                    return;
+                                }
                             }
                         }
 
@@ -348,29 +359,36 @@ function vote(req, res, next) {
 
                     } else if (parameter == "down") {
                         // Check if the user has previously voted up, if so, remove that vote and add the downVote
-                        for (var i = 0; i < voot.upVotes.length; i++) {
-                            if (voot.upVotes[i] == userId) {
-                                voot.upVotes.splice(i, 1);
-                                voot.downVotes.push(userId);
-                                voot.save();
-                                res.status(200).send('Voted down');
-                                res.end();
-                                return;
+
+                        var voted = checkIfVoted(voot, userId)
+
+
+                        if (voted == "up") {
+                            // If the user has already voted up, if so, remove their upvote
+                            for (var i = 0; i < voot.upVotes.length; i++) {
+                                if (voot.upVotes[i] == userId) {
+                                    voot.upVotes.splice(i, 1);
+                                    voot.downVotes.push(userId);
+                                    voot.save();
+                                    res.status(200).send('Voted down');
+                                    res.end();
+                                    return;
+                                }
+                            }
+                        } else if (voted == "down") {
+                            // If the user has already voted down, remove their downvote
+                            for (var i = 0; i < voot.downVotes.length; i++) {
+                                if (voot.downVotes[i] == userId) {
+                                    voot.downVotes.splice(i, 1);
+                                    voot.save();
+                                    res.status(200).send("Removed downvote");
+                                    res.end();
+                                    return;
+                                }
                             }
                         }
 
-                        // Check if the user has already voted down
-                        for (var i = 0; i < voot.downVotes.length; i++) {
-                            if (voot.downVotes[i] == userId) {
-                                voot.downVotes.splice(i, 1);
-                                voot.save();
-                                res.status(200).send("Removed downvote");
-                                res.end();
-                                return;
-                            }
-                        }
-
-                        // Just add a downVote
+                        // If they have not voted yet, just add a downVote
                         voot.downVotes.push(userId);
                         voot.save();
                         res.status(200).send('Voted down');;

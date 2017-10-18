@@ -6,6 +6,7 @@ var expressValidator = require('express-validator');
 var bcrypt = require('bcrypt');
 var JWT = require('jsonwebtoken');
 
+// Express validator middleware
 router.use(expressValidator())
 
 // Connect to mongodb using mongoose
@@ -84,7 +85,7 @@ router.get('/:userId', function(req, res, next) {
 });
 
 // Delete account
-router.post('/delete', function(req, res, next) {
+router.delete('/delete', function(req, res, next) {
     del(req, res, next);
 });
 
@@ -223,10 +224,15 @@ function del(req, res, next) {
             });
         } else {
             // Delete user with corresponding id
-            User.findByIdAndRemove(id).exec();
-            console.log('User removed');
-            res.status(200).send('User removed');
-            res.end();
+            User.findOneAndRemove({_id: id}, function(err, user, result) {
+                if (err) {
+                    res.status(400).send(err);
+                    res.end();
+                }
+                console.log('User removed');
+                res.status(200).send('User removed');
+                res.end();
+            });
         }
     });
 }
