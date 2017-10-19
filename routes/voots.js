@@ -19,7 +19,7 @@ mongoose.connect('mongodb://carlo:Dittoenbram1234@carlo-shard-00-00-nwaxe.mongod
 var vootSchema = new mongoose.Schema({
     title: String,
     body: String,
-    private: Boolean,
+    isPrivate: Boolean,
     key: String,
     user: {
         type: mongoose.Schema.Types.ObjectId,
@@ -107,7 +107,7 @@ function post(req, res, next) {
     var title = req.body.title;
     var body = req.body.body;
     var userId = req.body.userId;
-    var private = req.body.private;
+    var isPrivate = req.body.isPrivate;
 
 
     // Validation
@@ -132,12 +132,12 @@ function post(req, res, next) {
                 } else {
                     if (user) {
 
-                        if (private == "false") {
+                        if (isPrivate == "false") {
                             //Create new Voot()
                             var newVoot = Voot({
                                 title: title,
                                 body: body,
-                                private: false,
+                                isPrivate: false,
                                 key: "",
                                 user: user
                             })
@@ -156,7 +156,7 @@ function post(req, res, next) {
                             var newVoot = Voot({
                                 title: title,
                                 body: body,
-                                private: true,
+                                isPrivate: true,
                                 key: randomKey,
                                 user: user
                             });
