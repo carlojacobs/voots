@@ -1,10 +1,10 @@
 // Dependencies
-var express = require('express');
-var router = express.Router();
-var mongoose = require('mongoose');
-var expressValidator = require('express-validator');
-var bcrypt = require('bcrypt');
-var JWT = require('jsonwebtoken');
+const express = require('express');
+const router = express.Router();
+const mongoose = require('mongoose');
+const expressValidator = require('express-validator');
+const bcrypt = require('bcrypt');
+const JWT = require('jsonwebtoken');
 
 // Express validator middleware
 router.use(expressValidator())
@@ -56,7 +56,7 @@ var User = mongoose.model('user', userSchema);
 
 // Route: send back all users
 // For testing purposes
-router.get('/all', function(req, res, next) {
+router.get('/all', function(req, res) {
     User.find(function(err, users) {
         if (err) {
             console.log(err);
@@ -69,27 +69,14 @@ router.get('/all', function(req, res, next) {
     });
 });
 
-// Register a new user with email, name and password
-router.post('/register', function(req, res, next) {
-    register(req, res, next);
-});
+/*
 
-// Login the user using email and password
-router.post('/login', function(req, res, next) {
-    login(req, res, next);
-});
+    Routes
 
-// Get user info with userId
-router.get('/:userId', function(req, res, next) {
-    get(req, res, next);
-});
+*/
 
-// Delete account
-router.delete('/delete', function(req, res, next) {
-    del(req, res, next);
-});
-
-function register(req, res, next) {
+// Register a user
+var register = function(req, res) {
     // Req parameters
     var email = req.body.email;
     var password = req.body.password;
@@ -102,31 +89,34 @@ function register(req, res, next) {
     req.checkBody('password', 'Password is required').notEmpty();
     req.checkBody('password', 'Password is too short, it must be 8 characters or longer!').isLength({ min: 8 });
 
-    // Check validation result
-    req.getValidationResult().then(function(result) {
-            if (result.isEmpty() == false) {
-                // Throw validationresult error
-                result.array().forEach((error) => {
-                    res.status(400).send(error.msg);
-                })
-            } else {
-                //Create new user
-                var newUser = User({
-                    name: name,
-                    email: email,
-                    password: password
-                });
+    var registerUser = function(result) {
+        if (result.isEmpty() == false) {
+            // Throw validationresult error
+            result.array().forEach((error) => {
+                res.status(400).send(error.msg);
+            })
+        } else {
+            //Create new user
+            var newUser = User({
+                name: name,
+                email: email,
+                password: password
+            });
 
-                //Save user into db and send back the token
-                newUser.save().then(function() {
-                    var token = signToken(newUser.id);
-                    res.status(200).json({ token: token, userId: newUser.id })
-                });
-            }
-        });
+            //Save user into db and send back the token
+            newUser.save().then(function() {
+                var token = signToken(newUser.id);
+                res.status(200).json({ token: token, userId: newUser.id })
+            });
+        }
+    }
+
+    // Check validation result
+    req.getValidationResult().then(registerUser);
 }
 
-function login(req, res, next) {
+// Log in a user
+var login = function(req, res) {
     // Req parameters
     var email = req.body.email;
     var password = req.body.password;
@@ -135,8 +125,7 @@ function login(req, res, next) {
     req.checkBody('email', 'Email is required').notEmpty();
     req.checkBody('password', 'Password is required').notEmpty();
 
-    // Check validation result
-    req.getValidationResult().then(function(result) {
+    var loginUser = function(result) {
         if (result.isEmpty() == false) {
             // Throw validationresult error
             result.array().forEach((error) => {
@@ -181,10 +170,14 @@ function login(req, res, next) {
                 }
             });
         }
-    });
+    }
+
+    // Check validation result
+    req.getValidationResult().then(loginUser);
 }
 
-function get(req, res, next) {
+// Get user with user id
+var get = function(req, res) {
     // Req parameters
     var userId = req.params.userId;
 
@@ -207,16 +200,16 @@ function get(req, res, next) {
     });
 }
 
+// Delete a user
 //TODO: Require password for deletion of account
-function del(req, res, next) {
+ var del = function(req, res) {
     // Req parameters
     var id = req.body.id;
 
     // Validation
     req.checkBody('id', 'Id is required').notEmpty();
 
-    // Check validation result
-    req.getValidationResult().then(function(result) {
+    var deleteVoot = function(result) {
         if (result.isEmpty() == false) {
             // Throw validationresult error
             result.array().forEach((error) => {
@@ -234,9 +227,13 @@ function del(req, res, next) {
                 res.end();
             });
         }
-    });
+    }
+
+    // Check validation result
+    req.getValidationResult().then(deleteVoot);
 }
 
+// Sign a JWT token with a userId
 function signToken(userId) {
     return JWT.sign({
         iss: 'Voots',
@@ -248,6 +245,14 @@ function signToken(userId) {
     return token;
 }
 
+// Register a new user with email, name and password
+router.post('/register', register);
+// Login the user using email and password
+router.post('/login', login);
+// Get user info with userId
+router.get('/:userId', get);
+// Delete account
+router.delete('/delete', del);
 
 // Don't forget this in the future!
 module.exports = router;

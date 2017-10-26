@@ -1,12 +1,15 @@
-// Dependenies
-var express = require('express');
-var router = express.Router();
-var mongoose = require('mongoose');
-var expressValidator = require('express-validator');
-var bcrypt = require('bcrypt');
+/*
+    TODO: Categorize voots, food, sports, politics etc.
+    TODO: Figure out these smart comments
+    TODO: Fix 'schema not registered' error
+*/
 
-// User model
-var User = mongoose.model('user');
+// Dependenies
+const express = require('express');
+const router = express.Router();
+const mongoose = require('mongoose');
+const expressValidator = require('express-validator');
+const bcrypt = require('bcrypt');
 
 // Express validator middleware
 router.use(expressValidator());
@@ -19,71 +22,36 @@ mongoose.connect('mongodb://carlo:Dittoenbram1234@carlo-shard-00-00-nwaxe.mongod
 var vootSchema = new mongoose.Schema({
     title: String,
     body: String,
-    isPrivate: Boolean,
-    key: String,
     user: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'user'
     },
     upVotes: [String],
     downVotes: [String],
-    didVote: String
+    didVote: String,
+    withGroupId: String
 })
 
-// Create Voot model
+// Models
 var Voot = mongoose.model('voot', vootSchema);
+var Group = mongoose.model('group');
 
-// Function to generate random key for private voots
-function generateRandomKey() {
-  var text = "";
-  var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+/*
 
-  for (var i = 0; i < 6; i++)
-    text += possible.charAt(Math.floor(Math.random() * possible.length));
+    Routes
 
-  return text;
-}
+*/
 
-router.post('/post', function(req, res, next) {
-    post(req, res, next);
-});
-
-router.get('/all/:userId', function(req, res, next) {
-    getVoots(req, res, next)
-})
-
-router.get('/get/:userId', function(req, res, next) {
-    get(req, res, next);
-});
-
-router.put('/update', function(req, res, next) {
-    update(req, res, next);
-});
-
-router.delete('/delete', function(req, res, next) {
-    del(req, res, next);
-});
-
-router.put('/vote', function(req, res, next) {
-    vote(req, res, next);
-});
-
-function get(req, res, next) {
+// Get user's voots
+var get = function(req, res) {
     // Req parameters
     var userId = req.params.userId
 
-    // Send all voots from the specific user
-    Voot.find({"user": userId}).populate('user').exec(function(err, voots) {
-        // if (err) {
-        //     res.status(400).send(err);
-        //     res.end();
-        // }
-
+    var sendUserVoots = function(err, voots) {
         if (voots) {
             for (var i = voots.length - 1; i >= 0; i--) {
                 var voot = voots[i]
                 voot.user.password = "."
-                voot.key = "."
 
                 var voted = checkIfVoted(voot, userId)
 
@@ -98,26 +66,28 @@ function get(req, res, next) {
             res.status(400).send('No voots found');
             res.end();
         }
-    });
+    }
+
+    // Send all voots from the specific user
+    Voot.find({"user": userId}).populate('user').exec(sendUserVoots);
 }
 
 // Post a voot to the db
-function post(req, res, next) {
+var post = function(req, res) {
     // Req parameters
     var title = req.body.title;
     var body = req.body.body;
     var userId = req.body.userId;
-    var isPrivate = req.body.isPrivate;
+    var withGroupId = req.body.withGroupId;
 
 
     // Validation
     req.checkBody('title', 'title is required').notEmpty();
     req.checkBody('body', 'Body is required').notEmpty();
     req.checkBody('userId', 'User id is required').notEmpty();
-    req.checkBody('private', 'Private parameter is required').notEmpty;
+    req.checkBody('withGroupId', 'withGroupId is required').notEmpty();
 
-    // Get validation result
-    req.getValidationResult().then(function(result) {
+    var postVoot = function(result) {
         // Return errors
         if (result.isEmpty() == false) {
             result.array().forEach((error) => {
@@ -125,63 +95,43 @@ function post(req, res, next) {
                 res.end();
             })
         } else {
-            User.findOne({"_id": userId}, function(err, user) {
-                if (err) {
-                    // Throw error
-                    console.log(err);
-                } else {
-                    if (user) {
 
-                        if (isPrivate == "false") {
-                            //Create new Voot()
-                            var newVoot = Voot({
-                                title: title,
-                                body: body,
-                                isPrivate: false,
-                                key: "",
-                                user: user
-                            })
+            //Create new Voot()
+            var newVoot = Voot({
+                title: title,
+                body: body,
+                isPrivate: false,
+                user: userId
+            })
 
-                            //Save voot to db
-                            newVoot.save().then(function() {
-                                res.status(200).send('Posted voot successfully');
-                                res.end();
-                            });
-
-                        } else {
-                            // Generate random key
-                            var randomKey = generateRandomKey();
-
-                            // Create new private voot
-                            var newVoot = Voot({
-                                title: title,
-                                body: body,
-                                isPrivate: true,
-                                key: randomKey,
-                                user: user
-                            });
-
-                            //Save voot to db
-                            //Save voot to db
-                            newVoot.save().then(function() {
-                                res.status(200).send('Posted private voot successfully');
-                                res.end();
-                            });
-                        }
-
-                    } else {
-                        console.log("No user found");
-                        res.status(400).send('No user found');
+            // Check if posting to a group
+            if (withGroupId != "none") {
+                Group.findById(withGroupId, function(err, group) {
+                    if (err) {
+                        res.status(400).send(err);
                         res.end();
                     }
-                }
+                    if (group) {
+                        group.voots.push(newVoot);
+                        group.save();
+                    }
+                });
+            }
+
+            //Save voot to db
+            newVoot.save().then(function() {
+                res.status(200).send('Posted voot successfully');
+                res.end();
             });
         }
-    });
+    }
+
+    // Get validation result
+    req.getValidationResult().then(postVoot);
 }
 
 // Update voot
-function update(req, res, next) {
+var update = function(req, res) {
     // Req parameters
     var id = req.body.id;
     var title = req.body.title;
@@ -194,8 +144,7 @@ function update(req, res, next) {
     req.checkBody('body', 'Body is required').notEmpty();
     req.checkBody('userId', 'User id is required').notEmpty();
 
-    // Get validation result
-    req.getValidationResult().then(function(result) {
+    var updateVoot = function(result) {
         // Return errors
         if (result.isEmpty() == false) {
             result.array().forEach((error) => {
@@ -215,7 +164,7 @@ function update(req, res, next) {
                     // Make the changes to the voot
                     voot.title = title;
                     voot.body = body;
-                    voot.userId = userId;
+
                     // Save the voot
                     voot.save();
                     res.status(200).send('Voot updated');
@@ -223,29 +172,30 @@ function update(req, res, next) {
                 }
             });
         }
-    });
+    }
+
+    // Get validation result
+    req.getValidationResult().then(updateVoot);
 }
 
 // Get all voots
-function getVoots(req, res, next) {
+var getAllVoots = function(req, res) {
     // Req parameters
     var userId = req.params.userId;
 
-    // Send all voots
-    Voot.find().populate('user').exec(function(err, voots) {
-        // if (err) {
-        //     res.status(400).send(err);
-        // }
+    var sendAllVoots = function(err, voots) {
+        if (err) {
+            res.status(400).send(err);
+        }
 
         if (voots) {
             for (var i = voots.length - 1; i >= 0; i--) {
                 var voot = voots[i]
                 voot.user.password = "."
-                voot.key = "."
 
-                var voted = checkIfVoted(voot, userId)
+                var voteStatus = checkIfVoted(voot, userId);
 
-                voot.didVote = voted
+                voot.didVote = voteStatus;
 
             }
 
@@ -255,21 +205,23 @@ function getVoots(req, res, next) {
             res.status(400).send('No voots found');
             res.end();
         }
-    });
+    }
+
+    // Send all voots
+    Voot.find().populate('user').exec(sendAllVoots);
 
 }
 
 // Delete voot with specific id
 //TODO: Require password for deletion of voot/user
-function del(req, res, next) {
+var del = function(req, res) {
     // Req parameters
     var id = req.body.id;
 
     // Validation
     req.checkBody('id', 'Id is required').notEmpty();
 
-    // Get validation result
-    req.getValidationResult().then(function(result) {
+    var deleteVoot = function(result) {
         // Return errors
         if (result.isEmpty() == false) {
             result.array().forEach((error) => {
@@ -288,11 +240,14 @@ function del(req, res, next) {
                 res.end();
             });
         }
-    });
+    }
+
+    // Get validation result
+    req.getValidationResult().then(deleteVoot);
 }
 
-// Vote on a voot
-function vote(req, res, next) {
+// Vote on a voot with id
+var vote = function(req, res) {
     // Req parameters
     var id = req.body.id;
     var parameter = req.body.parameter;
@@ -303,8 +258,7 @@ function vote(req, res, next) {
     req.checkBody('userId', 'userId is required');
     req.checkBody('parameter', 'Parameter is required').notEmpty();
 
-    // Get validtion result
-    req.getValidationResult().then(function(result) {
+    var vote = function(result) {
         // Return errors
         if (result.isEmpty() == false) {
             result.array().forEach((error) => {
@@ -402,8 +356,63 @@ function vote(req, res, next) {
                 }
             });
         }
-    });
+    }
+
+    // Get validtion result
+    req.getValidationResult().then(vote);
 }
+
+// Send back all voots from a group
+var getGroupVoots = function(req, res) {
+    // Parameters
+    var groupId = req.body.groupId;
+    var userId = req.body.userId;
+
+    // Validation
+    req.checkBody('userId', 'userId is required').notEmpty();
+    req.checkBody('groupId', 'groupId is required').notEmpty();
+
+    var sendGroupVoots = function(result) {
+        if (result.isEmpty() == false) {
+            result.array().forEach((error) => {
+                res.status(400).send(error.msg);
+                res.end();
+            });
+        } else {
+            // Find group with groupId and send back its voots
+
+            var sendVoots = function(err, group) {
+                if (err) {
+                    res.status(400).send(err);
+                    res.end();
+                }
+                if (group) {
+                    // Add the didVote
+                    var voots = group.voots;
+
+                    for (var i = voots.length - 1; i >= 0; i--) {
+                        var voot = voots[i]
+                        var voteStatus = checkIfVoted(voot, userId);
+
+                        voot.didVote = voteStatus;
+                    }
+
+                    // Send voots
+                    res.status(200).json(voots);
+                    res.end();
+
+                }
+            }
+
+            Group.findById(groupId).populate('voots').exec(sendVoots);
+        }
+    }
+
+    // Get validtion result
+    req.getValidationResult().then(sendGroupVoots);
+    
+}
+
 
 // Check if the user has voted on a specific voot
 function checkIfVoted(voot, userId) {
@@ -423,6 +432,15 @@ function checkIfVoted(voot, userId) {
     // Otherwise send back none
     return "none";
 }
+
+// Routes
+router.post('/group', getGroupVoots)
+router.post('/post', post);
+router.get('/all/:userId', getAllVoots);
+router.get('/get/:userId', get);
+router.put('/update', update);
+router.delete('/delete', del);
+router.put('/vote', vote);
 
 // module.exports = router;
 module.exports = router;
