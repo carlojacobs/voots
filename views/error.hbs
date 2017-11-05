@@ -1,27 +1,7 @@
 <div class="jumbotron">
-	<h1>{{ message }}</h1>
-	<h2>{{ error.status }}</h2>
-	<pre>{{ error.stack }}</pre>
+	<div class="container">
+		<h1>{{ message }}</h1>
+		<h2>{{ error.status }}</h2>
+		<pre>{{ error.stack }}</pre>
+	</div>
 </div>
-
-<div class="jumbotron-fluid">
-	<h1>{{ message }}</h1>
-	<h2>{{ error.status }}</h2>
-	<pre>{{ error.stack }}</pre>
-</div>
-
-<style type="text/css">
-	.jumbotron-fluid {
-    display: none;
-  }
-  @media (max-width: 575px) {
-
-    .jumbotron {
-      display: none;
-    }
-    .jumbotron-fluid {
-      display: block;
-    }
-
-  }
-</style>
