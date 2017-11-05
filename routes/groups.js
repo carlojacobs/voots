@@ -9,7 +9,10 @@ const random = require('../constants/random')
 router.use(expressValidator());
 
 // Connect to mongodb using mongoose
-mongoose.connect('mongodb://carlo:Dittoenbram1234@carlo-shard-00-00-nwaxe.mongodb.net:27017,carlo-shard-00-01-nwaxe.mongodb.net:27017,carlo-shard-00-02-nwaxe.mongodb.net:27017/test?ssl=true&replicaSet=carlo-shard-0&authSource=admin');
+mongoose.connect('mongodb://carlo:Dittoenbram1234@carlo-shard-00-00-nwaxe.mongodb.net:27017,carlo-shard-00-01-nwaxe.mongodb.net:27017,carlo-shard-00-02-nwaxe.mongodb.net:27017/test?ssl=true&replicaSet=carlo-shard-0&authSource=admin', {
+  useMongoClient: true,
+  /* other options */
+});
 
 // Create group schema
 var groupSchema = new mongoose.Schema({

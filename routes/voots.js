@@ -1,7 +1,5 @@
 /*
     TODO: Categorize voots, food, sports, politics etc.
-    TODO: Figure out these smart comments
-    TODO: Fix 'schema not registered' error
 */
 
 // Dependenies
@@ -16,7 +14,10 @@ router.use(expressValidator());
 
 // Connect to mongodb using mongoose
 // mongoose.connect('localhost:27017/voots')
-mongoose.connect('mongodb://carlo:Dittoenbram1234@carlo-shard-00-00-nwaxe.mongodb.net:27017,carlo-shard-00-01-nwaxe.mongodb.net:27017,carlo-shard-00-02-nwaxe.mongodb.net:27017/test?ssl=true&replicaSet=carlo-shard-0&authSource=admin');
+mongoose.connect('mongodb://carlo:Dittoenbram1234@carlo-shard-00-00-nwaxe.mongodb.net:27017,carlo-shard-00-01-nwaxe.mongodb.net:27017,carlo-shard-00-02-nwaxe.mongodb.net:27017/test?ssl=true&replicaSet=carlo-shard-0&authSource=admin', {
+  useMongoClient: true,
+  /* other options */
+});
 
 // Create mongoose vootSchema
 var vootSchema = new mongoose.Schema({
@@ -434,12 +435,19 @@ function checkIfVoted(voot, userId) {
 }
 
 // Routes
-router.post('/group', getGroupVoots)
+// Get all groups from a specific group
+router.post('/group', getGroupVoots);
+// Post a voot
 router.post('/post', post);
+// Get all voots in the db and add a voting status
 router.get('/all/:userId', getAllVoots);
+// Get the voots from a specific user and add a voting status
 router.get('/get/:userId', get);
+// Update a voot in the db
 router.put('/update', update);
+// Delete a voot in the db
 router.delete('/delete', del);
+// Vote on a specific voot
 router.put('/vote', vote);
 
 // module.exports = router;
