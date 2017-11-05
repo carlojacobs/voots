@@ -2,59 +2,40 @@
 <div class="jumbotron">
 	<h1>Welcome to the Voots API.</h1>
 	<h3>Here you can find out what everybody is <b><i>thinking</i></b>.</h3>
-	<button type="button" class="btn btn-danger btn-lg" data-toggle="modal" data-target="#exampleModal">Routes?</button>
-</div>
-
-<!-- Modal -->
-<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalLabel">Routes</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-        <ul>
-        	<li><a data-toggle="collapse" href="#usersCollapse" aria-expanded="false" aria-controls="usersCollapse">/users</a></li>
-        	<div class="collapse" id="usersCollapse">
-  				<div class="card card-body">
-    				<ul>
-    					<li><p>/register</p></li>
-    					<li><p>/login</p></li>
-    					<li><p>/get</p></li>
-    					<li><p>/delete</p></li>
-    				</ul>
-  				</div>
-			</div>
-        	<li><a data-toggle="collapse" href="#vootsCollapse" aria-expanded="false" aria-controls="vootsCollapse">/voots</a></li>
-        	<div class="collapse" id="vootsCollapse">
-  				<div class="card card-body">
-    				<ul>
-    					<li><p>/post</p></li>
-    					<li><p>/vote</p></li>
-    					<li><p>/get</p></li>
-    					<li><p>/all</p></li>
-    					<li><p>/update</p></li>
-    					<li><p>/delete</p></li>
-    					<li><p>/group</p></li>
-    				</ul>
-  				</div>
-			</div>
-        	<li><a data-toggle="collapse" href="#groupsCollapse" aria-expanded="false" aria-controls="groupsCollapse">/groups</a></li>
-        	<div class="collapse" id="groupsCollapse">
-  				<div class="card card-body">
-    				<ul>
-    					<li><p>/create</p></li>
-    				</ul>
-  				</div>
-			</div>
-        </ul>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
-      </div>
+	<!-- <button type="button" class="btn btn-danger btn-lg" data-toggle="modal" data-target="#exampleModal">Routes?</button> -->
+  <p>
+    <button class="btn btn-danger btn-lg" type="button" data-toggle="collapse" data-target="#usersCollapse" aria-expanded="false" aria-controls="collapseExample">/users</button>
+    <button class="btn btn-success btn-lg" type="button" data-toggle="collapse" data-target="#vootsCollapse" aria-expanded="false" aria-controls="vootsCollapse">/voots</button>
+    <button class="btn btn-info btn-lg" type="button" data-toggle="collapse" data-target="#groupsCollapse" aria-expanded="false" aria-controls="groupsCollapse">/groups</button>
+  </p>
+  <div class="collapse" id="usersCollapse">
+    <div class="card card-body">
+      <ul>
+        <li><p>/users/register</p></li>
+        <li><p>/users/login</p></li>
+        <li><p>/users/get</p></li>
+        <li><p>/users/delete</p></li>
+      </ul>
+    </div>
+  </div>
+  <div class="collapse" id="vootsCollapse">
+    <div class="card card-body">
+      <ul>
+        <li><p>/voots/post</p></li>
+        <li><p>/voots/vote</p></li>
+        <li><p>/voots/get</p></li>
+        <li><p>/voots/all</p></li>
+        <li><p>/voots/update</p></li>
+        <li><p>/voots/delete</p></li>
+        <li><p>/voots/group</p></li>
+      </ul>
+    </div>
+  </div>
+  <div class="collapse" id="groupsCollapse">
+    <div class="card card-body">
+      <ul>
+        <li><p>/groups/create</p></li>
+      </ul>
     </div>
   </div>
 </div>
@@ -64,4 +45,7 @@
 		background-color: #FEFFFE;
 		font-family: 'Ubuntu', sans-serif;
 	}
+  button {
+    margin-right: 0.5em;
+  }
 </style>
