@@ -40,12 +40,68 @@
   </div>
 </div>
 
+<div class="jumbotron-fluid">
+  <h1>Welcome to the Voots API.</h1>
+  <h3>Here you can find out what everybody is <b><i>thinking</i></b>.</h3>
+  <!-- <button type="button" class="btn btn-danger btn-lg" data-toggle="modal" data-target="#exampleModal">Routes?</button> -->
+  <p>
+    <button class="btn btn-danger btn-lg" type="button" data-toggle="collapse" data-target="#usersCollapse2" aria-expanded="false" aria-controls="usersCollapse2">/users</button>
+    <button class="btn btn-success btn-lg" type="button" data-toggle="collapse" data-target="#vootsCollapse2" aria-expanded="false" aria-controls="vootsCollapse2">/voots</button>
+    <button class="btn btn-info btn-lg" type="button" data-toggle="collapse" data-target="#groupsCollapse2" aria-expanded="false" aria-controls="groupsCollapse2">/groups</button>
+  </p>
+  <div class="collapse" id="usersCollapse2">
+    <div class="card card-body">
+      <ul>
+        <li><p>/users/register</p></li>
+        <li><p>/users/login</p></li>
+        <li><p>/users/get</p></li>
+        <li><p>/users/delete</p></li>
+      </ul>
+    </div>
+  </div>
+  <div class="collapse" id="vootsCollapse2">
+    <div class="card card-body">
+      <ul>
+        <li><p>/voots/post</p></li>
+        <li><p>/voots/vote</p></li>
+        <li><p>/voots/get</p></li>
+        <li><p>/voots/all</p></li>
+        <li><p>/voots/update</p></li>
+        <li><p>/voots/delete</p></li>
+        <li><p>/voots/group</p></li>
+      </ul>
+    </div>
+  </div>
+  <div class="collapse" id="groupsCollapse2">
+    <div class="card card-body">
+      <ul>
+        <li><p>/groups/create</p></li>
+      </ul>
+    </div>
+  </div>
+</div>
+
 <style type="text/css">
+  .jumbotron-fluid {
+    display: none;
+  }
 	body {
 		background-color: #FEFFFE;
 		font-family: 'Ubuntu', sans-serif;
 	}
   button {
     margin-right: 0.5em;
+    margin-top: 0.5em;
+  }
+
+  @media (max-width: 575px) {
+
+    .jumbotron {
+      display: none;
+    }
+    .jumbotron-fluid {
+      display: block;
+    }
+
   }
 </style>
