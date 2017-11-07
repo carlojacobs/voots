@@ -134,7 +134,7 @@ var get = function(req, res) {
         }
     }
 
-    Group.find({"users": [userId]}).populate('user', 'users').exec(sendGroups);
+    Group.find({"users": userId}).populate('user', 'users').exec(sendGroups);
 
 }
 
@@ -159,7 +159,7 @@ function checkIfVoted(voot, userId) {
 
 // Routes
 router.post('/create', create);
-router.get('/get/:userId', get)
+router.get('/get/:userId', get);
 
 
 // Don't forget this in the future!
