@@ -125,7 +125,7 @@ var get = function(req, res) {
 
             }
 
-            res.status(200).send(groups);
+            res.status(200).json(groups);
             res.end();
 
         } else {
