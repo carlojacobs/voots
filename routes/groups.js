@@ -111,6 +111,8 @@ var get = function(req, res) {
                 for (var i = voots.length - 1; i >= 0; i--) {
                     var voot = voots[i];
                     var voteStatus = checkIfVoted(voot, userId);
+                    console.log(voteStatus)
+
 
                     voot.didVote = voteStatus;
                 }
@@ -134,7 +136,7 @@ var get = function(req, res) {
         }
     }
 
-    Group.find({"users": userId}).populate('user', 'users').exec(sendGroups);
+    Group.find({"users": userId}).populate('user').populate('users').populate('voots').exec(sendGroups);
 
 }
 
