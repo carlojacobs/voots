@@ -69,6 +69,8 @@ var Group = mongoose.model('group', groupSchema);
 
         	var randomKey = random.generateRandomKey(6)
 
+            users.push(userId)
+
             var newGroup = Group({
             	name: name,
             	key: randomKey,
@@ -133,7 +135,7 @@ var get = function(req, res) {
     }
 
     Group.find({"users": [userId]}).populate('user', 'users').exec(sendGroups);
-    
+
 }
 
 // Check if the user has voted on a specific voot
