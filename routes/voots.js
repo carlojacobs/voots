@@ -101,7 +101,6 @@ var post = function(req, res) {
             var newVoot = Voot({
                 title: title,
                 body: body,
-                isPrivate: false,
                 user: userId
             })
 

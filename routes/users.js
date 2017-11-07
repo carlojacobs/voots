@@ -248,6 +248,8 @@ function signToken(userId) {
     return token;
 }
 
+// console.log(signToken('59e4a65eb1677b1e41e75ffd'))
+
 // Register a new user with email, name and password
 router.post('/register', register);
 // Login the user using email and password

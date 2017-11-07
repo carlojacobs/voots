@@ -90,8 +90,74 @@ var Group = mongoose.model('group', groupSchema);
     });
 }
 
+// Get a users groups
+var get = function(req, res) {
+    // Parameters
+    var userId = req.params.userId;
+
+    var sendGroups = function(err, groups) {
+        if (err) {
+            console.log(err)
+        }
+        if (groups) {
+            
+            for (var i = groups.length - 1; i >= 0; i--) {
+                var group = groups[i]
+
+                // Add the didVote
+                var voots = group.voots;
+                for (var i = voots.length - 1; i >= 0; i--) {
+                    var voot = voots[i];
+                    var voteStatus = checkIfVoted(voot, userId);
+
+                    voot.didVote = voteStatus;
+                }
+
+                var user = group.user;
+                user.password = ".";
+
+                var users = group.users;
+                for (var i = users.length - 1; i >= 0; i--) {
+                    users[i].password = ".";
+                }
+
+            }
+
+            res.status(200).send(groups);
+            res.end();
+
+        } else {
+            res.status(400).send('No groups found');
+            res.end();
+        }
+    }
+
+    Group.find({"users": [userId]}).populate('user', 'users').exec(sendGroups);
+    
+}
+
+// Check if the user has voted on a specific voot
+function checkIfVoted(voot, userId) {
+
+    // Check if voted up by user
+    for (var i = 0; i < voot.upVotes.length; i++) {
+        if (voot.upVotes[i] == userId) {
+            return "up";
+        }
+    }
+    // Check if voted down by user
+    for (var i = 0; i < voot.downVotes.length; i++) {
+        if (voot.downVotes[i] == userId) {
+            return "down";
+        }
+    }
+    // Otherwise send back none
+    return "none";
+}
+
 // Routes
 router.post('/create', create);
+router.get('/get/:userId', get)
 
 
 // Don't forget this in the future!
