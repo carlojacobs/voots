@@ -15,28 +15,37 @@ You will receive a token upon login or register.
 
 ## Example request
 ```swift
+// Create the parameters
 let parameters = [
-    "nameeeeeeeee": "Ster",
-    "age": "555",
-    "height": "123"
+    "name": "John Appleseed",
+    "email": "johnappleseed@info.com",
+    "password": "john1234"
 ]
     
-let url = NSURL(string: "http://localhost:3000/api")
+// Create the URL
+let url = NSURL(string: "https://voots.herokuapp.com")
 var request = URLRequest(url: url! as URL)
     
+// Add the headers
 request.addValue("application/json", forHTTPHeaderField: "Content-Type")
 request.addValue("application/json", forHTTPHeaderField: "Accept")
+request.addValue("Bearer <my_json_token>", forHTTPHeaderField: "Authorization")
     
+// Specify the http method
 request.httpMethod = "POST"
     
+// Create the json object
 guard let httpBody = try? JSONSerialization.data(withJSONObject: parameters, options: JSONSerialization.WritingOptions.prettyPrinted) else {
     return
 }
-    
+
+// Add the json to the request
 request.httpBody = httpBody
     
+// Open a URLSession
 let session = URLSession.shared
 session.dataTask(with: request) { (data, response, error) in
+    // Safely unwrap the data
     if let data = data {
         do {
             let json = try JSONSerialization.jsonObject(with: data, options: [])
