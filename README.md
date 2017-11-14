@@ -6,7 +6,7 @@ Use this URL to access the API:
 `https://voots.herokuapp.com`
 
 ## Routes
-* /users
+- /users
   * /register
     * Parameters
       - email (String)
