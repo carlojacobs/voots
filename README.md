@@ -14,6 +14,7 @@ If you want to make a request to a secure route, pass `Bearer <your_jwt_token>` 
 You will receive a token upon login or register.
 
 ## Routes
+These are all the routes you can make requests to:
 - /users
   - /register
     - POST
