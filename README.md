@@ -14,6 +14,7 @@ If you want to make a request to a secure route, pass `Bearer <your_jwt_token>` 
 You will receive a token upon login or register.
 
 ## Example request
+Here's an example request to /users/register in `Swift`:
 ```swift
 // Create the parameters
 let parameters = [
@@ -23,7 +24,7 @@ let parameters = [
 ]
     
 // Create the URL
-let url = NSURL(string: "https://voots.herokuapp.com")
+let url = NSURL(string: "https://voots.herokuapp.com/users/register")
 var request = URLRequest(url: url! as URL)
     
 // Add the headers
