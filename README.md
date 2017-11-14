@@ -13,6 +13,41 @@ We use JsonWebTokens in order to make our API secure. The following routes do no
 If you want to make a request to a secure route, pass `Bearer <your_jwt_token>` for the header field of `Authorization`.
 You will receive a token upon login or register.
 
+## Example request
+```swift
+let parameters = [
+    "nameeeeeeeee": "Ster",
+    "age": "555",
+    "height": "123"
+]
+    
+let url = NSURL(string: "http://localhost:3000/api")
+var request = URLRequest(url: url! as URL)
+    
+request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+request.addValue("application/json", forHTTPHeaderField: "Accept")
+    
+request.httpMethod = "POST"
+    
+guard let httpBody = try? JSONSerialization.data(withJSONObject: parameters, options: JSONSerialization.WritingOptions.prettyPrinted) else {
+    return
+}
+    
+request.httpBody = httpBody
+    
+let session = URLSession.shared
+session.dataTask(with: request) { (data, response, error) in
+    if let data = data {
+        do {
+            let json = try JSONSerialization.jsonObject(with: data, options: [])
+            print(json)
+        } catch {
+            print(error)
+        }
+    }
+}.resume()
+```
+
 ## Routes
 These are all the routes you can make requests to:
 - /users
