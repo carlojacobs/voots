@@ -12,7 +12,12 @@ Use this URL to access the API:
       - email (String)
       - password (String)
       - name (String)
+    - Creates the new user and returns a token and userId.
   * /login
+    * Parameters
+      - email (String)
+      - password (String)
+    - Signs in the user and returns a token and userId.
   * /get
   * /delete
 * /voots
