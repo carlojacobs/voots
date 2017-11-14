@@ -5,6 +5,13 @@ Welcome to the voots API. You can make request to this API to get access to all 
 Use this URL to access the API:
 `https://voots.herokuapp.com`
 
+## Authorization
+We use JsonWebTokens in order to make our API secure. The following routes do not need a token:
+- /users/login
+- /users/register
+If you want to make a request to a secure route, pass `Bearer <your_jwt_token>` for the header field of `Authorization`.
+You will receive a token upon login or register.
+
 ## Routes
 - /users
   - /register
