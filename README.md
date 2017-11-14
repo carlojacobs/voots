@@ -9,6 +9,7 @@ Use this URL to access the API:
 We use JsonWebTokens in order to make our API secure. The following routes do not need a token:
 - /users/login
 - /users/register
+
 If you want to make a request to a secure route, pass `Bearer <your_jwt_token>` for the header field of `Authorization`.
 You will receive a token upon login or register.
 
