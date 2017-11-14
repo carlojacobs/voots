@@ -7,18 +7,22 @@ Use this URL to access the API:
 
 ## Routes
 * /users
-  * /register parameters: [email: String, password: String, name: String]
+  * /register
+    * Parameters
+      - email (String)
+      - password (String)
+      - name (String)
   * /login
   * /get
   * /delete
 * /voots
- * /post
- * /vote
- * /get
- * /all
- * /update
- * /delete
- * /group
+  * /post
+  * /vote
+  * /get
+  * /all
+  * /update
+  * /delete
+  * /group
 * /groups
- * /create
- * /get
+  * /create
+  * /get
