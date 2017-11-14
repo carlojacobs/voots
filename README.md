@@ -37,7 +37,7 @@ These are all the routes you can make requests to:
   - /delete
     - GET
     * Parameters
-      - userId (String)
+      - id (String)
     - Deletes the user from the database.
 - /voots
   - /post
