@@ -4,6 +4,7 @@ const router = express.Router();
 const mongoose = require('mongoose');
 const expressValidator = require('express-validator');
 const random = require('../constants/random')
+const bluebird = require('bluebird');
 
 // Express validator middleware
 router.use(expressValidator());
@@ -13,6 +14,9 @@ mongoose.connect('mongodb://carlo:Dittoenbram1234@carlo-shard-00-00-nwaxe.mongod
   useMongoClient: true,
   /* other options */
 });
+
+// Mongoose promiss
+mongoose.Promise = bluebird;
 
 // Create group schema
 var groupSchema = new mongoose.Schema({
